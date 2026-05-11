@@ -1,24 +1,18 @@
-"""
-train_xgb.py
-
-FIXES applied:
-1. add_features() called consistently (was already there, kept).
-2. Target is the NEXT day's Close (shifted by 1) so the model actually learns to
-   PREDICT the future, not just reproduce today's value. This is the core reason
-   predictions were identical to the last known price.
-3. Model is saved with a scaler so predict.py can feed normalized input if needed
-   (XGBoost is scale-invariant, but keeping it consistent).
-"""
-
+import sys
 import os
 import joblib
-import numpy as np
 import pandas as pd
-from src.data_loader import load_all_assets
-from src.features import add_features
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from data_loader import load_all_assets
+from features import add_features
+
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error
+from xgboost import XGBRegressor
+
 
 # ===== Paths =====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,53 +28,56 @@ def train_xgb():
     all_assets = load_all_assets(asset_files)
 
     for asset_name, df in all_assets.items():
-        print(f"Training XGBoost for {asset_name}...")
+        print(f"\n📊 Training XGBoost for {asset_name}...")
 
-        # Feature engineering
         df = add_features(df)
 
+        # ===== Features =====
         feature_cols = [
             col for col in df.columns
-            if col not in ['Date', 'Close', 'Open', 'High', 'Low', 'Volume']
+            if col not in ['Date', 'Close']
         ]
 
-        # FIX: Target = NEXT day's Close (shift -1) so model predicts the future
-        df = df.copy()
-        df['Target'] = df['Close'].shift(-1)
-        df.dropna(inplace=True)
+        X = df[feature_cols].values
+        y = df['Close'].values.reshape(-1, 1)
 
-        X = df[feature_cols]
-        y = df['Target']
+        # ===== Scaling =====
+        scaler_X = MinMaxScaler()
+        X_scaled = scaler_X.fit_transform(X)
 
+        scaler_y = MinMaxScaler()
+        y_scaled = scaler_y.fit_transform(y)
+
+        # ===== Split =====
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, shuffle=False
+            X_scaled, y_scaled, test_size=0.2, shuffle=False
         )
 
+        # ===== Model =====
         model = XGBRegressor(
-            n_estimators=500,
+            n_estimators=300,
             learning_rate=0.05,
-            max_depth=6,
-            subsample=0.8,
-            colsample_bytree=0.8,
-        )
-        model.fit(
-            X_train, y_train,
-            eval_set=[(X_test, y_test)],
-            verbose=False,
+            max_depth=5
         )
 
-        y_pred = model.predict(X_test)
-        mse = mean_squared_error(y_test, y_pred)
-        rmse = np.sqrt(mse)
-        print(f"  RMSE for {asset_name}: {rmse:.4f}")
+        model.fit(X_train, y_train.ravel())
 
-        model_path = os.path.join(MODEL_DIR, f"{asset_name}_xgboost.pkl")
-        joblib.dump(model, model_path)
-        print(f"✅ Saved XGBoost model to {model_path}\n")
+        # ===== Evaluate =====
+        pred_scaled = model.predict(X_test).reshape(-1, 1)
+        pred_real = scaler_y.inverse_transform(pred_scaled)
+        y_real = scaler_y.inverse_transform(y_test)
+
+        mse = mean_squared_error(y_real, pred_real)
+        print(f"✅ MSE: {mse:.4f}")
+
+        # ===== Save everything =====
+        joblib.dump(model, os.path.join(MODEL_DIR, f"{asset_name}_xgboost.pkl"))
+        joblib.dump(scaler_X, os.path.join(MODEL_DIR, f"{asset_name}_scaler_X.pkl"))
+        joblib.dump(scaler_y, os.path.join(MODEL_DIR, f"{asset_name}_scaler_y.pkl"))
+        joblib.dump(feature_cols, os.path.join(MODEL_DIR, f"{asset_name}_features.pkl"))
+
+        print(f"💾 Saved model for {asset_name}")
 
 
 if __name__ == "__main__":
-    print("📊 Training XGBoost...")
     train_xgb()
-    print("✅ XGBoost done")
-    
