@@ -149,14 +149,16 @@ def predict(asset_id: int, model_type: str = "ensemble"):
 
         filename = f"{asset.name}.csv"
 
-        price, action = predict_asset(filename, model_type=model_type)
+        # price, action = predict_asset(filename, model_type=model_type)
+        result = predict_asset(filename, model_type)
 
         return {
             "asset_id":        asset.id,
             "asset_name":      asset.name,
             "model_type":      model_type,
-            "predicted_price": price,
-            "action":          action,
+            "predicted_price": result["predicted_price"],
+            "action":          result["action"],
+            "reasons":         result["reasons"]
         }
 
     except Exception as e:

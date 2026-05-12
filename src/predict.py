@@ -6,6 +6,7 @@ from collections import Counter
 
 from src.data_loader import load_asset_data
 from src.features import add_features
+from src.explainer import explain_prediction
 
 logging.basicConfig(level=logging.INFO)
 
@@ -200,15 +201,28 @@ def predict_asset(filename, model_type="ensemble"):
             print("FINAL:", final_price, final_action)
             print("=================\n")
 
-            return final_price, final_action
+            reasons = explain_prediction(df, final_price, last_close)
 
+            return {
+                "predicted_price": float(final_price) if final_price is not None else None,
+                "action": final_action,
+                "reasons": reasons
+            }
         # ===== Single Model =====
         fn = RUNNERS.get(model_type)
 
         if not fn:
             return None, "Hold"
 
-        return fn(asset, df, cols, last_close)
+        # return fn(asset, df, cols, last_close)
+    
+        reasons = explain_prediction(df, price, last_close)
+
+        return {
+            "predicted_price": float(price) if price else None,
+            "action": action,
+            "reasons": reasons
+        }
 
     except Exception as e:
         logging.error(f"Prediction failed: {e}")
