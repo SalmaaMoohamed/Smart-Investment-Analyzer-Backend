@@ -27,7 +27,6 @@ from api.enums import AssetEnum
 from src.predict import predict_asset
 
 from fastapi import HTTPException
-
 from fastapi.staticfiles import StaticFiles
 from scheduler import start_scheduler
 
@@ -109,6 +108,8 @@ def get_assets():
 
 @app.get("/asset/{asset_id}")
 def get_asset(asset_id: int):
+
+
     db = SessionLocal()
 
     asset = db.query(Asset).filter(Asset.id == asset_id).first()
@@ -138,7 +139,7 @@ def get_asset(asset_id: int):
 ##   • Response now includes a "model_type" field so the client knows what was used
 
 @app.get("/predict/{asset_id}")
-def predict(asset_id: int, model_type: str = "ensemble"):
+def predict(asset_id: int):
     db = SessionLocal()
 
     try:
@@ -150,12 +151,11 @@ def predict(asset_id: int, model_type: str = "ensemble"):
         filename = f"{asset.name}.csv"
 
         # price, action = predict_asset(filename, model_type=model_type)
-        result = predict_asset(filename, model_type)
+        result = predict_asset(filename)
 
         return {
             "asset_id":        asset.id,
             "asset_name":      asset.name,
-            "model_type":      model_type,
             "predicted_price": result["predicted_price"],
             "action":          result["action"],
             "reasons":         result["reasons"]
@@ -168,7 +168,39 @@ def predict(asset_id: int, model_type: str = "ensemble"):
     finally:
         db.close()
 
-        
+@app.get("/assets/cards")
+def get_asset_cards():
+
+    assets = {
+        1: "ETEL.csv",
+        2: "COMI.csv",
+        3: "FWRY.csv"
+    }
+
+    result = []
+
+    for asset_id, filename in assets.items():
+
+        asset_name = filename.replace(".csv", "")
+
+        df = load_asset_data(filename)
+
+        current_price = float(df["Close"].iloc[-1])
+
+        predicted_price, action = predict_asset(filename)
+
+        trend = "up" if predicted_price > current_price else "down"
+
+        result.append({
+            "asset_id": asset_id,
+            "name": asset_name,
+            "current_price": round(current_price, 2),
+            "trend": trend,
+            "logo": f"http://127.0.0.1:8000/static/images/{asset_name}.png"
+        })
+
+    return result
+
 # ===== Predict Portfolio =====
 @app.post("/predict-portfolio")
 def predict_multiple(files: List[str], model_type: str = "xgboost"):
