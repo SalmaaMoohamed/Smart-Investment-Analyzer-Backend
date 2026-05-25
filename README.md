@@ -1,4 +1,4 @@
-# 🚀 SIA — Smart Investment Analyzer
+# ❤️ SIA — Smart Investment Analyzer 👨🏼‍💻👩🏼‍💻
 
 <div align="center">
 
@@ -94,7 +94,7 @@ The backend APIs are fully prepared to connect with a Flutter mobile application
                           │
         ┌─────────────────┼─────────────────┐
         ▼                 ▼                 ▼
-   XGBoost             GRU Model        LSTM Model
+   XGBoost             GRU Model        RL Model
         │                 │                 │
         └─────────────────┼─────────────────┘
                           ▼
@@ -104,7 +104,7 @@ The backend APIs are fully prepared to connect with a Flutter mobile application
                 └─────────┬──────────┘
                           ▼
                 Predicted Price + Action
-                     Buy / Sell / Hold
+                    Buy / Sell / Hold  
 ```
 
 ---
@@ -134,53 +134,6 @@ The backend APIs are fully prepared to connect with a Flutter mobile application
 * Yahoo Finance API (yfinance)
 
 ---
-
-# 📂 Project Structure
-
-```text
-Smart-Investment-Analyzer-Backend/
-│
-├── api/
-│   └── main.py
-│
-├── auth/
-│   ├── auth_handler.py
-│   ├── database.py
-│   └── models.py
-│
-├── data/
-│   └── raw/
-│       ├── ETEL.csv
-│       ├── COMI.csv
-│       └── FWRY.csv
-│
-├── models/
-│   ├── xgboost/
-│   ├── gru/
-│   ├── lstm/
-│   └── rl/
-│
-├── src/
-│   ├── data_loader.py
-│   ├── features.py
-│   ├── predict.py
-│   ├── train_xgb.py
-│   ├── train_gru.py
-│   ├── train_lstm.py
-│   ├── train_rl.py
-│   ├── train_all.py
-│   ├── download_data.py
-│   ├── sentiment_news.py
-│   └── explanation_engine.py
-│
-├── static/
-│   └── images/
-│
-├── app.db
-├── requirements.txt
-└── README.md
-```
-
 ---
 
 # ⚙️ Installation Guide
@@ -188,8 +141,8 @@ Smart-Investment-Analyzer-Backend/
 ## 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/SIA.git
-cd SIA
+git clone https://github.com/mossama2003/Smart-Investment-Analyzer-Backend.git
+cd Smart-Investment-Analyzer-Backend
 ```
 
 ---
@@ -448,13 +401,13 @@ The Flutter application includes:
 
 Color Palette:
 
-* Blue
-* Green
+* Navy blue
+* Cyan blue
 * Dark Finance Theme
 
 ---
 
-# 🚀 Future Improvements
+# ❤️ Future Improvements
 
 Planned future upgrades:
 
