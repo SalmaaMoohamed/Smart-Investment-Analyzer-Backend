@@ -8,6 +8,7 @@
 ![Machine Learning](https://img.shields.io/badge/AI-Ensemble%20Models-purple?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
 
+
 ### 📈 AI-Powered Egyptian Stock Market Prediction System
 
 SIA (Smart Investment Analyzer) is an intelligent stock prediction and investment analysis platform designed for the Egyptian Stock Exchange (EGX). The system combines multiple AI models, technical indicators, reinforcement learning, and market news analysis to generate smart stock predictions with human-readable explanations.
