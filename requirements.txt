@@ -5,7 +5,7 @@ scipy
 scikit-learn
 tensorflow==2.15
 matplotlib
-
+uvicorn[standard]
 
 # pip install sqlalchemy passlib[bcrypt]
 
