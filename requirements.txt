@@ -1,10 +1,17 @@
 # Date,Open,High,Low,Close,Volume
+fastapi
+xgboost
 numpy==1.26.4
 pandas
 scipy
 scikit-learn
+stable-baselines3
+torch
 tensorflow==2.15
+python-jose
+passlib
 matplotlib
+joblib
 uvicorn[standard]
 
 # pip install sqlalchemy passlib[bcrypt]
